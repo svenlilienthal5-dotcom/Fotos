@@ -2,6 +2,8 @@
 
 Zeigt ein zufälliges Foto aus Tallinn.
 
+Wer hinter den Fotos steckt: [Persönliches Profil](profil.md)
+
 ## Fotos vom iPhone hochladen
 
 1. In der **Fotos**-App die Tallinn-Bilder auswählen → **Teilen** → **In „Dateien“ sichern**.
