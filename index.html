@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zufallsfoto Tallinn</title>
+  <style>
+    :root { --bg: #f6f5f2; --fg: #1c1c1c; --muted: #6b6b6b; --accent: #0b5cad; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #141414; --fg: #eeeeee; --muted: #9a9a9a; --accent: #6aa8ff; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 16px; gap: 16px;
+    }
+    h1 { margin: 0; font-size: 1.4rem; font-weight: 600; }
+    figure { margin: 0; width: 100%; max-width: 900px; text-align: center; }
+    img { max-width: 100%; max-height: 75vh; border-radius: 10px; display: none; }
+    figcaption { margin-top: 8px; color: var(--muted); font-size: .9rem; word-break: break-all; }
+    button {
+      font: inherit; font-size: 1rem; padding: 12px 24px; border: 0; border-radius: 999px;
+      background: var(--accent); color: #fff; cursor: pointer;
+    }
+    #status { color: var(--muted); text-align: center; max-width: 600px; }
+  </style>
+</head>
+<body>
+  <h1>Zufallsfoto aus Tallinn</h1>
+  <figure>
+    <img id="photo" alt="Zufälliges Foto aus Tallinn">
+    <figcaption id="caption"></figcaption>
+  </figure>
+  <p id="status">Lade Fotos …</p>
+  <button id="next" type="button">Neues Zufallsfoto</button>
+
+  <script>
+    // Liest die Bilder aus dem Ordner "tallinn/" dieses Repositorys über die GitHub-API.
+    const REPO = "svenlilienthal5-dotcom/Fotos";
+    const FOLDER = "tallinn";
+    const IMAGE_EXT = /\.(jpe?g|png|gif|webp|heic|heif|avif)$/i;
+
+    const img = document.getElementById("photo");
+    const caption = document.getElementById("caption");
+    const status = document.getElementById("status");
+    let photos = [];
+    let last = null;
+
+    function showRandom() {
+      if (!photos.length) return;
+      let pick;
+      do {
+        pick = photos[Math.floor(Math.random() * photos.length)];
+      } while (photos.length > 1 && pick === last);
+      last = pick;
+      img.src = pick.download_url;
+      img.style.display = "block";
+      caption.textContent = pick.name;
+      status.textContent = photos.length + " Fotos im Ordner";
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FOLDER}`);
+        if (!res.ok) throw new Error("GitHub-API antwortete mit " + res.status);
+        const files = await res.json();
+        photos = files.filter(f => f.type === "file" && IMAGE_EXT.test(f.name));
+        if (!photos.length) {
+          status.textContent = `Noch keine Fotos im Ordner „${FOLDER}/“. Lade welche hoch, dann erscheint hier ein Zufallsfoto.`;
+          return;
+        }
+        showRandom();
+      } catch (err) {
+        status.textContent = "Fotos konnten nicht geladen werden: " + err.message;
+      }
+    }
+
+    document.getElementById("next").addEventListener("click", showRandom);
+    load();
+  </script>
+</body>
+</html>
