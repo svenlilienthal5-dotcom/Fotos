@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mein Finanz-Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: ruhige Navy-Kopfzeile, links Eingaben in Abschnitten, rechts mitlaufende Auswertung mit Ampeln */
+:root {
+  --bg: #f3f6fa;
+  --surface: #ffffff;
+  --surface-2: #eaf0f7;
+  --ink: #1c2533;
+  --muted: #5b6778;
+  --line: #dce2ea;
+  --navy: #16243a;
+  --navy-2: #22344f;
+  --on-navy: #ffffff;
+  --on-navy-muted: #c9d8ec;
+  --accent: #3e6fb0;
+  --on-accent: #ffffff;
+  --gruen: #2e9e6a;
+  --gelb: #c9930f;
+  --rot: #d0503f;
+  --grau: #a3acb9;
+  --font-head: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1724; --surface: #16212f; --surface-2: #1d2a3b; --ink: #e6ecf4; --muted: #9aa8bb; --line: #2a3a50;
+    --navy: #0a1220; --navy-2: #182840; --on-navy: #ffffff; --on-navy-muted: #b5c7df; --accent: #79a3dd; --on-accent: #0e1724;
+    --gruen: #4cc28a; --gelb: #e6b53a; --rot: #ec7564; --grau: #6d7a8c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1724; --surface: #16212f; --surface-2: #1d2a3b; --ink: #e6ecf4; --muted: #9aa8bb; --line: #2a3a50;
+  --navy: #0a1220; --navy-2: #182840; --on-navy: #ffffff; --on-navy-muted: #b5c7df; --accent: #79a3dd; --on-accent: #0e1724;
+  --gruen: #4cc28a; --gelb: #e6b53a; --rot: #ec7564; --grau: #6d7a8c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); padding-bottom: env(safe-area-inset-bottom, 0px); }
+h1, h2, h3 { font-family: var(--font-head); text-wrap: balance; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header.top { background: var(--navy); color: var(--on-navy); padding-top: env(safe-area-inset-top, 0px); }
+header.top .wrap { padding-block: 28px 30px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--on-navy-muted); font-weight: 600; }
+header.top h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 800; margin-top: 6px; }
+header.top p { margin: 6px 0 0; color: var(--on-navy-muted); max-width: 60ch; }
+.privacy { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--on-navy-muted); background: var(--navy-2); padding: 10px 14px; border-radius: 10px; max-width: 360px; }
+.privacy svg { flex: none; }
+
+.banner { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; background: var(--surface); border: 1px dashed var(--gelb); border-radius: var(--radius); padding: 12px 16px; }
+.banner strong { color: var(--gelb); }
+
+main.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 24px; padding-block: 20px 60px; align-items: start; }
+@media (max-width: 960px) { main.grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Formular */
+form { display: grid; gap: 16px; min-width: 0; }
+fieldset { margin: 0; border: 0; background: var(--surface); border-radius: var(--radius); padding: 20px; min-width: 0; }
+legend { float: left; width: 100%; padding: 0; margin-bottom: 4px; }
+legend h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); padding: 2px 8px; border-radius: 999px; }
+.hint { clear: both; color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.fields { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; }
+.field { display: grid; gap: 4px; min-width: 0; align-content: start; grid-template-rows: auto auto 1fr; }
+.field label { min-height: 2.6em; display: flex; align-items: end; }
+.field label { font-size: 13px; font-weight: 500; color: var(--ink); }
+.field small { color: var(--muted); font-size: 12px; }
+.input { position: relative; display: flex; align-items: center; }
+.input input, .input select, .text-input { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-height: 42px; }
+.input input[type="number"] { text-align: right; padding-right: 54px; font-variant-numeric: tabular-nums; }
+.input .unit { position: absolute; right: 12px; color: var(--muted); font-size: 13px; pointer-events: none; }
+input:focus-visible, select:focus-visible, button:focus-visible, .check input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sum-row { clear: both; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.checks { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex: none; }
+.check b { display: block; font-weight: 600; }
+.check span small { color: var(--muted); font-size: 12px; display: block; }
+.prio { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.prio.muss, .prio.sehr { color: var(--rot); }
+.prio.opt { color: var(--muted); }
+
+.goals { clear: both; display: grid; gap: 10px; }
+.goal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 10px; align-items: end; padding: 12px; background: var(--bg); border-radius: 12px; }
+.goal .field:first-child { grid-column: 1 / -1; }
+.goal .field label { min-height: 0; }
+.goal .input input, .goal .text-input { background: var(--surface); }
+
+button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid transparent; padding: 9px 16px; font-weight: 600; min-height: 42px; }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-icon { background: transparent; border-color: var(--line); color: var(--muted); padding: 8px 12px; }
+.btn-big { width: 100%; padding: 14px 18px; font-size: 16px; display: flex; gap: 10px; align-items: center; justify-content: center; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Auswertung */
+aside.result { position: sticky; top: 16px; display: grid; gap: 16px; min-width: 0; }
+@media (max-width: 960px) { aside.result { position: static; } }
+.panel { background: var(--surface); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.score { background: var(--navy); color: var(--on-navy); display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; }
+.ring { width: 118px; height: 118px; position: relative; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-family: var(--font-head); font-weight: 800; font-size: 38px; line-height: 1; }
+.ring .num small { display: block; font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--on-navy-muted); margin-top: 4px; }
+.score h2 { font-size: 24px; font-weight: 800; }
+.score p { margin: 6px 0 0; color: var(--on-navy-muted); font-size: 14px; }
+.verdict-gruen { color: #5cc995; } .verdict-gelb { color: #f2c14e; } .verdict-rot { color: #f07c6c; }
+
+.group-title { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+.group-title:first-child { margin-top: 0; }
+.area { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.area:last-child { border-bottom: 0; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.area b { font-weight: 600; }
+.area .val { font-family: var(--font-head); font-weight: 800; font-variant-numeric: tabular-nums; }
+.area .sub { grid-column: 2 / -1; color: var(--muted); font-size: 13px; }
+.c-gruen { color: var(--gruen); } .c-gelb { color: var(--gelb); } .c-rot { color: var(--rot); } .c-grau { color: var(--grau); }
+.bg-gruen { background: var(--gruen); } .bg-gelb { background: var(--gelb); } .bg-rot { background: var(--rot); } .bg-grau { background: var(--grau); }
+
+.panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.split { display: grid; gap: 8px; }
+.split-row { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13px; color: var(--muted); }
+.stack { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--surface-2); }
+.stack div { display: grid; place-content: center; color: #fff; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; min-width: 0; }
+.s-bedarf { background: #3b5175; } .s-wunsch { background: var(--accent); } .s-sparen { background: var(--gruen); } .s-rest { background: var(--grau); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+ol.tips { list-style: none; counter-reset: t; margin: 0; padding: 0; display: grid; gap: 12px; }
+ol.tips li { counter-increment: t; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+ol.tips li::before { content: counter(t); width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-content: center; font-weight: 700; font-size: 13px; }
+ol.tips b { display: block; font-weight: 600; }
+ol.tips span { color: var(--muted); font-size: 13px; }
+ul.plus { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; }
+.status { font-size: 13px; color: var(--muted); text-align: center; margin-top: 8px; min-height: 1.5em; }
+.fineprint { font-size: 12px; color: var(--muted); }
+details.assume summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+details.assume ul { padding-left: 18px; margin: 8px 0 0; }
+
+.mobilebar { display: none; }
+@media (max-width: 960px) {
+  .mobilebar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--navy); color: var(--on-navy); align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .mobilebar a { color: var(--on-navy); font-weight: 600; text-decoration: none; background: var(--navy-2); padding: 8px 14px; border-radius: 10px; }
+  body { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: no-preference) { .ring circle.val, .stack div { transition: all .4s ease; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Persönlicher Finanz-Check</div>
+      <h1>Bin ich finanziell solide aufgestellt?</h1>
+      <p>Trage deine Zahlen ein. Die Auswertung rechts aktualisiert sich sofort, und per Klick bekommst du eine fertige PowerPoint-Präsentation.</p>
+    </div>
+    <div class="privacy">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Deine Daten bleiben auf diesem Gerät. Nichts wird hochgeladen.</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="banner" id="banner" hidden>
+    <span><strong>Beispieldaten:</strong> Alle Felder sind mit Musterwerten gefüllt. Ersetze sie durch deine eigenen Zahlen.</span>
+    <span class="row-actions" style="margin:0">
+      <button type="button" class="btn-ghost" id="btn-keep">Behalten und anpassen</button>
+      <button type="button" class="btn-primary" id="btn-clear">Felder leeren</button>
+    </span>
+  </div>
+
+  <main class="grid">
+    <form id="form" autocomplete="off" novalidate></form>
+
+    <aside class="result" id="ergebnis" aria-live="polite">
+      <section class="panel score">
+        <div class="ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="10"/><circle class="val" id="ring-val" cx="60" cy="60" r="52" fill="none" stroke="#5cc995" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+          <div class="num"><span id="score-num">–</span><small>von 100</small></div>
+        </div>
+        <div>
+          <h2 id="verdict">–</h2>
+          <p id="verdict-text"></p>
+        </div>
+      </section>
+
+      <section class="panel" id="areas"></section>
+
+      <section class="panel">
+        <h3>50/30/20-Regel</h3>
+        <div class="split" id="split"></div>
+        <div class="legend"><span><i class="s-bedarf"></i>Bedarf</span><span><i class="s-wunsch"></i>Wünsche</span><span><i class="s-sparen"></i>Sparen</span><span><i class="s-rest"></i>Unverplant</span></div>
+      </section>
+
+      <section class="panel">
+        <h3>Deine nächsten Schritte</h3>
+        <ol class="tips" id="tips"></ol>
+        <h3 style="margin-top:18px">Das läuft schon gut</h3>
+        <ul class="plus" id="plus"></ul>
+      </section>
+
+      <section class="panel">
+        <button type="button" class="btn-primary btn-big" id="btn-pptx">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          PowerPoint herunterladen
+        </button>
+        <div class="status" id="status"></div>
+        <div class="row-actions">
+          <button type="button" class="btn-ghost" id="btn-backup">Daten sichern (.json)</button>
+          <button type="button" class="btn-ghost" id="btn-restore">Sicherung laden</button>
+          <input type="file" id="file-restore" accept="application/json,.json" hidden>
+        </div>
+        <details class="assume" style="margin-top:14px">
+          <summary>Annahmen der Berechnung</summary>
+          <ul class="fineprint">
+            <li>Alle Werte in heutiger Kaufkraft, Inflation ist herausgerechnet.</li>
+            <li>Langfristige Anlagen (z. B. ETFs): 3 % reale Rendite pro Jahr.</li>
+            <li>Gesetzliche Rente netto ≈ 82 % der Bruttorente, private Renten ≈ 85 %.</li>
+            <li>Wunschrente: 80 % deines heutigen Nettos, falls du nichts anderes einträgst. Rentenbezug bis 90.</li>
+            <li>Vermögens-Richtwert: Faustregel nach Alter (30 J. 0,5×, 40 J. 1,5×, 50 J. 3,5×, 60 J. 6× Jahresnetto).</li>
+            <li>Keine Anlage- oder Steuerberatung, nur eine Orientierung.</li>
+          </ul>
+        </details>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="mobilebar"><span>Ergebnis: <b id="mb-score">–</b> · <span id="mb-verdict"></span></span><a href="#ergebnis">Ansehen</a></div>
+
+<script src="vendor/pptxgen.bundle.js"></script>
+<script src="finanzcheck.js"></script>
+<script>
+(function () {
+  "use strict";
+  const FC = window.FinanzCheck;
+  const { eur, pct } = FC.format;
+  const KEY = "finanzcheck-v1";
+
+  // ---------- Formular-Definition
+  const SECTIONS = [
+    { id: "profil", titel: "Über dich", hint: "Grundlage für Richtwerte wie Notgroschen und Vermögen.", felder: [
+      { p: "profil.name", label: "Vorname (optional)", type: "text", hint: "Erscheint auf der Titelfolie" },
+      { p: "profil.alter", label: "Alter", unit: "Jahre" },
+      { p: "profil.rentenalter", label: "Geplanter Rentenbeginn", unit: "Jahre" },
+      { p: "profil.notgroschenMonate", label: "Notgroschen-Ziel", type: "select", options: [[3, "3 Monate"], [4, "4 Monate"], [6, "6 Monate"]], hint: "3 Monate reichen für Singles in Anstellung" },
+    ]},
+    { id: "einnahmen", titel: "Einnahmen", tag: "pro Monat", hint: "Netto, also das, was tatsächlich auf deinem Konto ankommt. Weihnachts- oder Urlaubsgeld anteilig auf 12 Monate verteilen.", felder: [
+      { p: "einnahmen.netto", label: "Nettogehalt", unit: "€" },
+      { p: "einnahmen.sonstige", label: "Sonstige Einnahmen", unit: "€", hint: "Nebenjob, Mieteinnahmen, Kindergeld …" },
+    ]},
+    { id: "ausgaben", titel: "Ausgaben", tag: "pro Monat", hint: "Schau am besten in die Kontoauszüge der letzten drei Monate. Jährliche Kosten durch 12 teilen. Eine Immobilienrate gehört zu Wohnen, andere Kreditraten zu Schulden.", sum: "ausgaben",
+      felder: FC.AUSGABEN.map((a) => ({ p: "ausgaben." + a.key, label: a.label, unit: "€", hint: a.typ === "bedarf" ? "Bedarf" : "Wunsch" })) },
+    { id: "sparen", titel: "Sparen", tag: "pro Monat", hint: "Alles, was du monatlich zur Seite legst: Tagesgeld, ETF-Sparplan, Altersvorsorge.", felder: [
+      { p: "sparen.sparrate", label: "Sparrate gesamt", unit: "€" },
+      { p: "sparen.langfristig", label: "davon langfristig angelegt", unit: "€", hint: "ETF-Sparplan, private Rente … (für die Rentenprognose)" },
+    ]},
+    { id: "vermoegen", titel: "Vermögen", tag: "aktueller Stand", felder: [
+      { p: "vermoegen.liquide", label: "Girokonto & Tagesgeld", unit: "€", hint: "Sofort verfügbar = Notgroschen" },
+      { p: "vermoegen.depot", label: "Depot / ETFs / Aktien", unit: "€" },
+      { p: "vermoegen.altersvorsorge", label: "Altersvorsorge-Verträge", unit: "€", hint: "Riester, Betriebsrente, Rürup (Rückkaufswert)" },
+      { p: "vermoegen.immobilie", label: "Immobilie (Marktwert)", unit: "€" },
+      { p: "vermoegen.sonstiges", label: "Sonstiges", unit: "€", hint: "Bausparvertrag, Gold, Auto nur bei hohem Wert" },
+    ]},
+    { id: "schulden", titel: "Schulden", felder: [
+      { p: "schulden.konsumkredit", label: "Restschuld Konsumkredite", unit: "€", hint: "Ratenkredit, Autokredit, Ratenkäufe" },
+      { p: "schulden.kreditrate", label: "Monatliche Kreditraten", unit: "€", hint: "ohne Immobilienkredit" },
+      { p: "schulden.dispo", label: "Genutzter Dispo", unit: "€", hint: "Wie weit im Minus bist du im Schnitt?" },
+      { p: "schulden.immobilienkredit", label: "Restschuld Immobilienkredit", unit: "€" },
+    ]},
+    { id: "rente", titel: "Altersvorsorge", tag: "pro Monat", hint: "Die erwartete gesetzliche Rente steht in deiner jährlichen Renteninformation der Deutschen Rentenversicherung.", felder: [
+      { p: "rente.gesetzlichBrutto", label: "Erwartete gesetzliche Rente (brutto)", unit: "€" },
+      { p: "rente.privat", label: "Erwartete Betriebs- / Privatrente", unit: "€", hint: "Laut Standmitteilungen deiner Verträge" },
+      { p: "rente.wunsch", label: "Wunsch-Einkommen im Alter", unit: "€", hint: "Leer lassen = 80 % deines Nettos" },
+    ]},
+  ];
+
+  // ---------- Zustand
+  let data = laden();
+  function laden() {
+    try { const raw = localStorage.getItem(KEY); if (raw) return mitStandard(JSON.parse(raw)); } catch (e) {}
+    return FC.beispielDaten();
+  }
+  function mitStandard(d) {
+    const base = FC.leereDaten();
+    for (const k of Object.keys(base)) {
+      if (d[k] == null) continue;
+      base[k] = typeof base[k] === "object" && !Array.isArray(base[k]) ? { ...base[k], ...d[k] } : d[k];
+    }
+    return base;
+  }
+  function speichern() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+  const get = (p) => p.split(".").reduce((o, k) => (o == null ? o : o[k]), data);
+  const set = (p, v) => { const ks = p.split("."); let o = data; ks.slice(0, -1).forEach((k) => (o = o[k])); o[ks[ks.length - 1]] = v; };
+
+  // ---------- Formular bauen
+  const form = document.getElementById("form");
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fid = (p) => "f-" + p.replace(/\./g, "-");
+
+  function feldHTML(f) {
+    let ctrl;
+    if (f.type === "text") ctrl = `<input class="text-input" id="${fid(f.p)}" data-p="${f.p}" type="text" maxlength="40">`;
+    else if (f.type === "select") ctrl = `<div class="input"><select id="${fid(f.p)}" data-p="${f.p}" data-num="1">${f.options.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("")}</select></div>`;
+    else ctrl = `<div class="input"><input id="${fid(f.p)}" data-p="${f.p}" data-num="1" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit">${f.unit || ""}</span></div>`;
+    return `<div class="field"><label for="${fid(f.p)}">${esc(f.label)}</label>${ctrl}${f.hint ? `<small>${esc(f.hint)}</small>` : ""}</div>`;
+  }
+
+  function formBauen() {
+    let html = SECTIONS.map((s) => `
+      <fieldset id="sec-${s.id}">
+        <legend><h2>${esc(s.titel)}${s.tag ? ` <span class="tag">${esc(s.tag)}</span>` : ""}</h2></legend>
+        ${s.hint ? `<p class="hint">${esc(s.hint)}</p>` : ""}
+        <div class="fields">${s.felder.map(feldHTML).join("")}</div>
+        ${s.sum ? `<div class="sum-row"><span>Summe Ausgaben</span><span id="sum-${s.sum}">–</span></div>` : ""}
+      </fieldset>`).join("");
+    html += `
+      <fieldset id="sec-vers">
+        <legend><h2>Versicherungen</h2></legend>
+        <p class="hint">Hake an, was du bereits hast.</p>
+        <div class="checks">${FC.VERSICHERUNGEN.map((v) => `
+          <label class="check"><input type="checkbox" id="v-${v.key}" data-v="${v.key}">
+            <span><b>${esc(v.label)}</b><span class="prio ${v.wichtig === "muss" ? "muss" : v.wichtig === "sehr wichtig" ? "sehr" : "opt"}">${esc(v.wichtig)}</span><small>${esc(v.info)}</small></span>
+          </label>`).join("")}
+        </div>
+      </fieldset>
+      <fieldset id="sec-ziele">
+        <legend><h2>Sparziele</h2></legend>
+        <p class="hint">Größere Anschaffungen oder Träume mit Betrag und Wunschtermin. Die App rechnet aus, wie viel du monatlich dafür brauchst.</p>
+        <div class="goals" id="goals"></div>
+        <div class="row-actions"><button type="button" class="btn-ghost" id="btn-goal">+ Sparziel hinzufügen</button></div>
+      </fieldset>`;
+    form.innerHTML = html;
+  }
+
+  function zieleBauen() {
+    const box = document.getElementById("goals");
+    box.innerHTML = data.ziele.map((z, i) => `
+      <div class="goal" data-i="${i}">
+        <div class="field"><label for="g-${i}-name">Ziel</label><input class="text-input" id="g-${i}-name" data-g="name" type="text" maxlength="40" value="${esc(z.name || "")}" placeholder="z. B. Neues Fahrrad"></div>
+        <div class="field"><label for="g-${i}-betrag">Betrag</label><div class="input"><input id="g-${i}-betrag" data-g="betrag" type="number" inputmode="decimal" min="0" step="any" value="${z.betrag || ""}" placeholder="0"><span class="unit">€</span></div></div>
+        <div class="field"><label for="g-${i}-angespart">Angespart</label><div class="input"><input id="g-${i}-angespart" data-g="angespart" type="number" inputmode="decimal" min="0" step="any" value="${z.angespart || ""}" placeholder="0"><span class="unit">€</span></div></div>
+        <div class="field"><label for="g-${i}-datum">Bis wann</label><input class="text-input" id="g-${i}-datum" data-g="datum" type="month" value="${esc(z.datum || "")}"></div>
+        <button type="button" class="btn-icon" data-del="${i}" aria-label="Ziel ${esc(z.name || i + 1)} entfernen">Entfernen</button>
+      </div>`).join("") || `<p class="fineprint" style="margin:0">Noch keine Sparziele.</p>`;
+  }
+
+  function formFuellen() {
+    form.querySelectorAll("[data-p]").forEach((el) => {
+      const v = get(el.dataset.p);
+      el.value = el.dataset.num && el.tagName === "INPUT" ? (v ? v : "") : v ?? "";
+    });
+    form.querySelectorAll("[data-v]").forEach((el) => (el.checked = !!data.versicherungen[el.dataset.v]));
+    zieleBauen();
+    document.getElementById("banner").hidden = !data.beispiel;
+  }
+
+  form.addEventListener("input", (e) => {
+    const el = e.target;
+    if (el.dataset.p) set(el.dataset.p, el.dataset.num ? Number(el.value) || 0 : el.value);
+    else if (el.dataset.v) data.versicherungen[el.dataset.v] = el.checked;
+    else if (el.dataset.g) {
+      const i = Number(el.closest(".goal").dataset.i);
+      data.ziele[i][el.dataset.g] = el.type === "number" ? Number(el.value) || 0 : el.value;
+    } else return;
+    speichern(); auswerten();
+  });
+  form.addEventListener("change", (e) => { if (e.target.dataset.v) { data.versicherungen[e.target.dataset.v] = e.target.checked; speichern(); auswerten(); } });
+  form.addEventListener("click", (e) => {
+    if (e.target.id === "btn-goal") {
+      if (data.ziele.length >= 6) return;
+      data.ziele.push({ name: "", betrag: 0, angespart: 0, datum: "" });
+      zieleBauen(); speichern(); auswerten();
+      document.getElementById(`g-${data.ziele.length - 1}-name`).focus();
+    }
+    const del = e.target.dataset && e.target.dataset.del;
+    if (del != null) { data.ziele.splice(Number(del), 1); zieleBauen(); speichern(); auswerten(); }
+  });
+
+  // ---------- Auswertung anzeigen
+  const VERDICT_FARBE = { gruen: "#5cc995", gelb: "#f2c14e", rot: "#f07c6c" };
+  function auswerten() {
+    const r = FC.analysiere(data);
+    const a = r.gesamt >= 75 ? "gruen" : r.gesamt >= 50 ? "gelb" : "rot";
+    document.getElementById("score-num").textContent = r.gesamt;
+    const ring = document.getElementById("ring-val");
+    ring.setAttribute("stroke", VERDICT_FARBE[a]);
+    ring.setAttribute("stroke-dashoffset", String(326.7 * (1 - r.gesamt / 100)));
+    const v = document.getElementById("verdict");
+    v.textContent = r.urteil.titel; v.className = "verdict-" + a;
+    document.getElementById("verdict-text").textContent = r.urteil.text;
+    document.getElementById("mb-score").textContent = r.gesamt;
+    document.getElementById("mb-verdict").textContent = r.urteil.titel;
+
+    let html = "", gruppe = "";
+    for (const b of r.bereiche) {
+      if (b.gruppe !== gruppe) { gruppe = b.gruppe; html += `<div class="group-title">${esc(gruppe)}</div>`; }
+      html += `<div class="area" title="${esc(b.erklaerung)}"><span class="dot bg-${b.ampel}"></span><b>${esc(b.titel)}</b><span class="val c-${b.ampel}">${b.score == null ? "–" : Math.round(b.score)}</span><span class="sub">${esc(b.kennzahl)} · ${esc(b.erklaerung)}</span></div>`;
+    }
+    document.getElementById("areas").innerHTML = html;
+
+    const g = r.regel;
+    const seg = (cls, v) => v > 0.005 ? `<div class="${cls}" style="width:${Math.min(100, v * 100)}%">${v >= 0.08 ? pct(v) : ""}</div>` : "";
+    document.getElementById("split").innerHTML =
+      `<div class="split-row"><span>Ziel</span><div class="stack">${seg("s-bedarf", 0.5)}${seg("s-wunsch", 0.3)}${seg("s-sparen", 0.2)}</div></div>` +
+      `<div class="split-row"><span>Du</span><div class="stack">${seg("s-bedarf", g.bedarf)}${seg("s-wunsch", g.wuensche)}${seg("s-sparen", g.sparen)}${seg("s-rest", Math.max(0, g.rest))}</div></div>` +
+      (g.rest < 0 ? `<div class="fineprint c-rot">Du gibst ${eur(-r.unverplant)} mehr aus, als du einnimmst.</div>` : "");
+
+    const tips = r.tipps.slice(0, 5);
+    document.getElementById("tips").innerHTML = tips.length
+      ? tips.map((t) => `<li><div><b>${esc(t.titel)}</b><span>${esc(t.text)}</span></div></li>`).join("")
+      : `<li><div><b>Weiter so</b><span>Alle Checks sind im grünen Bereich. Schau einmal im Jahr wieder rein.</span></div></li>`;
+    document.getElementById("plus").innerHTML = (r.plus.length ? r.plus : ["Du hast den ersten Schritt gemacht und deine Zahlen erfasst."]).map((p) => `<li>${esc(p)}</li>`).join("");
+    const sum = document.getElementById("sum-ausgaben");
+    if (sum) sum.textContent = eur(r.ausgaben);
+    return r;
+  }
+
+  // ---------- Buttons
+  document.getElementById("btn-keep").onclick = () => { data.beispiel = false; speichern(); formFuellen(); auswerten(); };
+  document.getElementById("btn-clear").onclick = () => { data = FC.leereDaten(); speichern(); formFuellen(); auswerten(); document.getElementById("f-profil-name").focus(); };
+
+  const status = document.getElementById("status");
+  document.getElementById("btn-pptx").onclick = async () => {
+    if (!window.PptxGenJS) { status.textContent = "Die PowerPoint-Bibliothek fehlt (Datei vendor/pptxgen.bundle.js). Lade die Seite neu."; return; }
+    status.textContent = "Präsentation wird erstellt …";
+    try {
+      const r = FC.analysiere(data);
+      const pptx = new window.PptxGenJS();
+      FC.erstellePraesentation(pptx, data, r);
+      const datum = new Date().toISOString().slice(0, 10);
+      await pptx.writeFile({ fileName: `Finanz-Check_${datum}.pptx` });
+      status.textContent = "Fertig. Die Datei liegt in deinen Downloads.";
+    } catch (err) {
+      console.error(err);
+      status.textContent = "Beim Erstellen ist ein Fehler aufgetreten: " + err.message;
+    }
+  };
+
+  document.getElementById("btn-backup").onclick = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `Finanz-Check-Daten_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    status.textContent = "Sicherung gespeichert.";
+  };
+  const fileIn = document.getElementById("file-restore");
+  document.getElementById("btn-restore").onclick = () => fileIn.click();
+  fileIn.onchange = async () => {
+    const f = fileIn.files[0]; if (!f) return;
+    try { data = mitStandard(JSON.parse(await f.text())); speichern(); formFuellen(); auswerten(); status.textContent = "Sicherung geladen."; }
+    catch (e) { status.textContent = "Die Datei ist keine gültige Finanz-Check-Sicherung."; }
+    fileIn.value = "";
+  };
+
+  formBauen();
+  formFuellen();
+  auswerten();
+})();
+</script>
+</body>
+</html>

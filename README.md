@@ -23,3 +23,19 @@ neue Fotos erscheinen also ohne weitere Änderungen.
 python3 zufallsfoto.py          # Pfad eines zufälligen Fotos ausgeben
 python3 zufallsfoto.py --open   # und direkt öffnen
 ```
+
+## Finanz-Check (`finanz-check/`)
+
+Web-App, die prüft, ob du finanziell solide aufgestellt bist: 7 Checks mit Ampel
+(Budget, Notgroschen, Schulden, Vermögen, Altersvorsorge, Versicherungen, Sparziele),
+eine Gesamtpunktzahl und konkrete nächste Schritte. Per Knopfdruck entsteht eine
+PowerPoint-Präsentation mit deinen Zahlen.
+
+- **Öffnen:** Mit aktiviertem GitHub Pages unter `https://svenlilienthal5-dotcom.github.io/Fotos/finanz-check/`,
+  oder am Computer `finanz-check/index.html` über einen lokalen Webserver
+  (`python3 -m http.server` im Repo-Ordner, dann `http://localhost:8000/finanz-check/`).
+- **Datenschutz:** Alle Eingaben bleiben im Browser (localStorage). Mit „Daten sichern“
+  lädst du eine JSON-Sicherung herunter, mit „Sicherung laden“ spielst du sie wieder ein.
+- **Beispiel:** `finanz-check/Beispiel-Praesentation.pptx` zeigt die Präsentation mit Musterdaten.
+- Die Bewertungslogik und der PowerPoint-Aufbau stecken in `finanz-check/finanzcheck.js`.
+  `vendor/pptxgen.bundle.js` ist die Bibliothek PptxGenJS 3.12.0 (MIT-Lizenz).
